@@ -1,20 +1,100 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+generator client {
+  provider = "prisma-client-js"
+}
 
-model User { id String @id @default(cuid()) email String @unique name String? orgId String? org Organization? @relation(fields:[orgId], references:[id]) role Role @default(MEMBER) devices Device[] subscriptions Subscription[] createdAt DateTime @default(now()) }
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-enum Role { OWNER ADMIN MEMBER }
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  orgId         String?
+  org           Organization? @relation(fields: [orgId], references: [id])
+  role          Role     @default(MEMBER)
+  devices       Device[]
+  subscriptions Subscription[]
+  createdAt     DateTime @default(now())
+}
 
-model Organization { id String @id @default(cuid()) name String ownerId String owner User @relation(fields:[ownerId], references:[id]) members User[] policies Policy[] devices Device[] createdAt DateTime @default(now()) }
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
 
-model Device { id String @id @default(cuid()) orgId String org Organization @relation(fields:[orgId], references:[id]) userId String? user User? @relation(fields:[userId], references:[id]) name String platform String lastSeenAt DateTime? version String? status DeviceStatus @default(OFFLINE) tokenHash String createdAt DateTime @default(now()) }
+model Organization {
+  id        String  @id @default(cuid())
+  name      String
+  ownerId   String
+  owner     User    @relation(fields: [ownerId], references: [id])
+  members   User[]
+  policies  Policy[]
+  devices   Device[]
+  createdAt DateTime @default(now())
+}
 
-enum DeviceStatus { ONLINE OFFLINE PAUSED }
+model Device {
+  id         String         @id @default(cuid())
+  orgId      String
+  org        Organization   @relation(fields: [orgId], references: [id])
+  userId     String?
+  user       User?          @relation(fields: [userId], references: [id])
+  name       String
+  platform   String         // win | mac | linux
+  lastSeenAt DateTime?
+  version    String?
+  status     DeviceStatus   @default(OFFLINE)
+  tokenHash  String
+  createdAt  DateTime       @default(now())
+}
 
-model Policy { id String @id @default(cuid()) orgId String org Organization @relation(fields:[orgId], references:[id]) name String mode PolicyMode intervalMin Int intervalMax Int pixelMin Int pixelMax Int schedule Json wifiBlocklist String[] appBlocklist String[] createdAt DateTime @default(now()) }
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+  PAUSED
+}
 
-enum PolicyMode { PRESENTATION RENDER CUSTOM }
+model Policy {
+  id            String   @id @default(cuid())
+  orgId         String
+  org           Organization @relation(fields: [orgId], references: [id])
+  name          String
+  mode          PolicyMode
+  intervalMin   Int
+  intervalMax   Int
+  pixelMin      Int
+  pixelMax      Int
+  schedule      Json
+  wifiBlocklist String[]
+  appBlocklist  String[]
+  createdAt     DateTime @default(now())
+}
 
-model Subscription { id String @id @default(cuid()) orgId String org Organization @relation(fields:[orgId], references:[id]) stripeId String @unique status String tier String seats Int createdAt DateTime @default(now()) }
+enum PolicyMode {
+  PRESENTATION
+  RENDER
+  CUSTOM
+}
 
-model EventLog { id String @id @default(cuid()) deviceId String device Device @relation(fields:[deviceId], references:[id]) ts DateTime @default(now()) kind String detail Json }
+model Subscription {
+  id        String        @id @default(cuid())
+  orgId     String
+  org       Organization  @relation(fields: [orgId], references: [id])
+  stripeId  String        @unique
+  status    String        // active | past_due | canceled
+  tier      String        // free | pro | team
+  seats     Int
+  createdAt DateTime      @default(now())
+}
+
+model EventLog {
+  id       String   @id @default(cuid())
+  deviceId String
+  device   Device   @relation(fields: [deviceId], references: [id])
+  ts       DateTime @default(now())
+  kind     String   // online, policy_applied, move, pause, error
+  detail   Json
+}
