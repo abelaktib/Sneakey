@@ -7,12 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/* ─────────────── MODELS ─────────────── */
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
   name          String?
+
+  // Membre d'une org (facultatif)
   orgId         String?
-  org           Organization? @relation(fields: [orgId], references: [id])
+  org           Organization? @relation("MemberOfOrg", fields: [orgId], references: [id])
+
+  // Propriétaire (owner) de 0..n organisations
+  organizationsOwned Organization[] @relation("OwnerOfOrg")
+
   role          Role     @default(MEMBER)
   devices       Device[]
   subscriptions Subscription[]
@@ -28,9 +36,14 @@ enum Role {
 model Organization {
   id        String  @id @default(cuid())
   name      String
+
+  // Propriétaire unique (owner)
   ownerId   String
-  owner     User    @relation(fields: [ownerId], references: [id])
-  members   User[]
+  owner     User    @relation("OwnerOfOrg", fields: [ownerId], references: [id])
+
+  // Membres (liste de users)
+  members   User[]  @relation("MemberOfOrg")
+
   policies  Policy[]
   devices   Device[]
   createdAt DateTime @default(now())
