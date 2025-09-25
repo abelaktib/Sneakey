@@ -21,7 +21,10 @@ model User {
 
   role          Role     @default(MEMBER)
   devices       Device[]
+
+  // 👇 back-relation côté Subscription (nécessite userId/user dans Subscription)
   subscriptions Subscription[]
+
   createdAt     DateTime @default(now())
 }
 
@@ -44,6 +47,10 @@ model Organization {
 
   policies  Policy[]
   devices   Device[]
+
+  // 👇 back-relation vers Subscription manquant
+  subscriptions Subscription[]
+
   createdAt DateTime @default(now())
 }
 
@@ -59,6 +66,10 @@ model Device {
   version    String?
   status     DeviceStatus   @default(OFFLINE)
   tokenHash  String
+
+  // 👇 back-relation vers EventLog manquant
+  eventLogs  EventLog[]
+
   createdAt  DateTime       @default(now())
 }
 
@@ -98,6 +109,11 @@ model Subscription {
   status    String        // active | past_due | canceled
   tier      String        // free | pro | team
   seats     Int
+
+  // 👇 ajoute la relation opposée à User.subscriptions
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id])
+
   createdAt DateTime      @default(now())
 }
 
