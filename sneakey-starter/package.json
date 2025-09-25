@@ -1,0 +1,10 @@
+{
+  "name": "sneakey",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev:web": "pnpm -C apps/web dev",
+    "dev:agent": "pnpm -C apps/agent tauri:dev",
+    "build:web": "pnpm -C apps/web build"
+  }
+}

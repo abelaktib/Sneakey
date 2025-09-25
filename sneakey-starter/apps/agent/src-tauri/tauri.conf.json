@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Sneakey Agent",
+  "version": "0.1.0",
+  "identifier": "com.sneakey.agent",
+  "app": { "windows": [{ "title": "Sneakey", "width": 400, "height": 300, "visible": false }] },
+  "bundle": { "active": true, "targets": ["msi", "dmg", "appimage"], "icon": ["icons/icon.png"] },
+  "updater": { "active": true, "endpoints": ["https://updates.sneakey.app/agent.json"], "dialog": false }
+}
