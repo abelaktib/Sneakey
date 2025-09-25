@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
       sig!,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-    // TODO: mettre à jour l'abonnement selon event.type
     return NextResponse.json({ received: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 400 });
